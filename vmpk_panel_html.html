@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel VMPK Kraków</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f8; margin:0; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+  .login, .dashboard { display: none; }
+  input, button { padding: 10px; margin: 5px 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background: #1E3A8A; color: white; }
+  button { cursor: pointer; background: #2563EB; color: white; border: none; border-radius: 4px; }
+  button:hover { background: #1D4ED8; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Panel VMPK Kraków</h1>
+<div class="login">
+  <h2>Logowanie</h2>
+  <input type="text" id="loginNick" placeholder="Nick"><br>
+  <input type="password" id="loginPass" placeholder="Hasło"><br>
+  <button onclick="login()">Zaloguj</button>
+  <p id="loginMsg" style="color:red"></p>
+</div>
+
+<div class="dashboard">
+  <h2 id="welcome"></h2>
+  <div id="adminPanel" style="display:none">
+    <h3>Admin Panel</h3>
+    <input type="text" id="newNick" placeholder="Nick nowego kierowcy">
+    <button onclick="addDriver()">Dodaj kierowcę</button>
+  </div>
+
+  <h3>Kierowcy</h3>
+  <table id="driversTable">
+    <thead><tr><th>Nick</th><th>Ranga</th><th>Linia</th><th>Status</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h3>Zgłaszanie kursu</h3>
+  <input type="text" id="lineInput" placeholder="Linia"><br>
+  <input type="text" id="kmInput" placeholder="Kilometry"><br>
+  <button onclick="reportRide()">Zgłoś kurs</button>
+  <p id="rideMsg" style="color:green"></p>
+</div>
+</div>
+
+<script>
+const users = [
+  {nick:'maly78', pass:'maly78', rank:'Admin', line:'-', status:'Aktywny'},
+  {nick:'oskar', pass:'Xk7b2P', rank:'Kierowca', line:'-', status:'Aktywny'},
+  {nick:'gabrys', pass:'R9dQ4m', rank:'Kierowca', line:'-', status:'Aktywny'},
+  {nick:'orgianl', pass:'T2vL8s', rank:'Kierowca', line:'-', status:'Aktywny'}
+];
+let currentUser = null;
+
+function showLogin(){ document.querySelector('.login').style.display='block'; }
+function showDashboard(){ document.querySelector('.login').style.display='none'; document.querySelector('.dashboard').style.display='block'; }
+
+function login(){
+  const nick = document.getElementById('loginNick').value;
+  const pass = document.getElementById('loginPass').value;
+  const user = users.find(u=>u.nick===nick && u.pass===pass);
+  if(user){
+    currentUser=user;
+    showDashboard();
+    document.getElementById('welcome').innerText=`Witaj ${user.nick}`;
+    if(user.rank==='Admin') document.getElementById('adminPanel').style.display='block';
+    renderDrivers();
+  } else { document.getElementById('loginMsg').innerText='Błędny login lub hasło'; }
+}
+
+function renderDrivers(){
+  const tbody=document.querySelector('#driversTable tbody'); tbody.innerHTML='';
+  users.forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${u.nick}</td><td>${u.rank}</td><td>${u.line}</td><td>${u.status}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function addDriver(){
+  const nick=document.getElementById('newNick').value;
+  if(nick){
+    const pass=Math.random().toString(36).slice(-6);
+    users.push({nick,nick,pass,rank:'Kierowca',line:'-',status:'Aktywny'});
+    alert(`Dodano kierowcę ${nick} z hasłem ${pass}`);
+    renderDrivers();
+  }
+}
+
+function reportRide(){
+  if(!currentUser) return;
+  const line=document.getElementById('lineInput').value;
+  const km=document.getElementById('kmInput').value;
+  currentUser.line=line;
+  currentUser.km=km;
+  document.getElementById('rideMsg').innerText=`Kurs zgłoszony: linia ${line}, km ${km}`;
+  renderDrivers();
+}
+
+showLogin();
+</script>
+</body>
+</html>
